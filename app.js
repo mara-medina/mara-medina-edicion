@@ -5,6 +5,8 @@ const PIEZAS = [
   { id: "aurea", tema: "Comercial de perfume", titulo: "AURÉA · Concepto publicitario", rol: "Narrativa visual · Color · Ritmo · Branding", dur: "0:28", audio: false },
   { id: "bienes-raices", tema: "Bienes raíces", titulo: "Recorrido de propiedad", rol: "Títulos animados · Subtítulos · Ritmo de recorrido", dur: "0:39", audio: true },
   { id: "podcast", tema: "Podcast", titulo: "Contenido informativo · Retención", rol: "Motion graphics · Subtítulos keyword · B-roll", dur: "0:31", audio: true },
+  // Publicado en YouTube: no hay archivo propio, se muestra su miniatura y se reproduce con el reproductor de YouTube
+  { id: "short-moneda", tema: "Short de YouTube", titulo: "¿Una moneda puede aprobar más cuentas de fondeo que tu estrategia?", rol: "José Rivas | Total Trader", dur: "Short", audio: true, youtube: "6-uEseZv1-c" },
 ];
 const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -17,8 +19,11 @@ function crearPieza(p, i) {
   b.setAttribute("aria-label", `Ver ${p.tema}: ${p.titulo}, ${p.dur}${p.audio ? "" : ", sin audio"}`);
   // El reel de la cabecera usa una versión ligera (se ve chico y sin sonido); el reproductor abre la de alta calidad
   const fuente = i === 0 ? `media/${p.id}-fondo.mp4` : `media/previa/${p.id}.mp4`;
+  const medio = p.youtube
+    ? `<img src="media/${p.id}.jpg" alt="" loading="lazy">`
+    : `<video src="${fuente}" poster="media/${p.id}.jpg" muted loop playsinline preload="${i === 0 ? "auto" : "metadata"}" ${quieto ? "" : "autoplay"}></video>`;
   b.innerHTML = `<span class="pieza__marco">
-      <video src="${fuente}" poster="media/${p.id}.jpg" muted loop playsinline preload="${i === 0 ? "auto" : "metadata"}" ${quieto ? "" : "autoplay"}></video>
+      ${medio}
       <span class="pieza__ver">${i === 0 ? "▶ Ver con sonido" : "▶ Ver completo"} · ${p.dur}${p.audio ? "" : " · sin audio"}</span>
     </span>
     <span class="pieza__tema">${p.tema}</span><span class="pieza__titulo">${p.titulo}</span><span class="pieza__rol">${p.rol}</span>`;
@@ -29,7 +34,7 @@ reel.onclick = () => abrir(PIEZAS[0]);
 document.getElementById("reel").appendChild(reel);
 
 // Los proyectos van en el carrusel infinito. Swiper necesita más slides que los que caben a la vista
-// para dar la vuelta, así que los 4 proyectos se ponen dos veces; la copia no se anuncia ni recibe foco.
+// para dar la vuelta, así que los proyectos se ponen dos veces; la copia no se anuncia ni recibe foco.
 const PROYECTOS = PIEZAS.slice(1);
 const N = PROYECTOS.length;
 for (let k = 0; k < N * 2; k++) {
@@ -45,7 +50,7 @@ for (let k = 0; k < N * 2; k++) {
 }
 const loops = [...document.querySelectorAll(".pieza video")];
 
-// Puntos propios: siempre 4, uno por proyecto, aunque los slides estén duplicados
+// Puntos propios: uno por proyecto, aunque los slides estén duplicados
 const puntos = document.querySelector(".carrusel__puntos");
 puntos.innerHTML = PROYECTOS.map((p, i) => `<button type="button" class="swiper-pagination-bullet" aria-label="Ir a ${p.tema}"></button>`).join("");
 const botonesPunto = [...puntos.children];
@@ -103,21 +108,37 @@ function elegir(k, p) {
 const visor = document.getElementById("visor");
 const completo = visor.querySelector("video");
 function abrir(p) {
-  completo.src = `media/${p.id}.mp4`;
-  completo.poster = `media/${p.id}.jpg`;
   visor.querySelector(".visor__tema").textContent = p.tema + (p.audio ? "" : " · sin audio");
   visor.querySelector(".visor__titulo").textContent = p.titulo;
   loops.forEach(v => v.pause());
+  if (p.youtube) {
+    // Los videos de YouTube se abren con su propio reproductor en lugar del <video>
+    const yt = document.createElement("iframe");
+    yt.src = `https://www.youtube-nocookie.com/embed/${p.youtube}?autoplay=1&rel=0`;
+    yt.title = p.titulo;
+    yt.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    yt.allowFullscreen = true;
+    completo.hidden = true;
+    completo.before(yt);
+    visor.showModal();
+    return;
+  }
+  completo.src = `media/${p.id}.mp4`;
+  completo.poster = `media/${p.id}.jpg`;
   visor.showModal();
   completo.play().catch(() => {});
 }
 // El cierre no depende del evento "close" (algunos navegadores no lo disparan): todas las vías pasan por aquí
 function cerrar() {
   if (visor.open) visor.close();
-  if (!completo.getAttribute("src")) return;
-  completo.pause();
-  completo.removeAttribute("src");
-  completo.load();
+  const yt = visor.querySelector("iframe");
+  if (!completo.getAttribute("src") && !yt) return;
+  if (yt) { yt.remove(); completo.hidden = false; }
+  if (completo.getAttribute("src")) {
+    completo.pause();
+    completo.removeAttribute("src");
+    completo.load();
+  }
   if (!quieto) loops.forEach(v => v.play().catch(() => {}));
 }
 visor.querySelector(".visor__cerrar").onclick = cerrar;

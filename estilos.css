@@ -105,8 +105,8 @@ a { color: inherit; }
 /* flex en columna: un <button> centra su contenido en vertical y desalinearía las piezas */
 .pieza { all: unset; display: flex; flex-direction: column; align-self: start; cursor: pointer; border-radius: 4px; }
 .pieza__marco { position: relative; display: block; aspect-ratio: 9 / 16; overflow: hidden; border-radius: 4px; background: #000; }
-.pieza video { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s cubic-bezier(.22, .61, .36, 1); }
-.pieza:hover video, .pieza:focus-visible video { transform: scale(1.03); }
+.pieza video, .pieza__marco img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s cubic-bezier(.22, .61, .36, 1); }
+.pieza:hover :is(video, img), .pieza:focus-visible :is(video, img) { transform: scale(1.03); }
 .pieza:focus-visible { outline: 2px solid var(--vino); outline-offset: 4px; }
 .pieza__ver {
   position: absolute;
@@ -171,7 +171,8 @@ a { color: inherit; }
 .visor { padding: 0; border: 0; background: transparent; max-width: none; max-height: none; }
 .visor::backdrop { background: rgba(28, 23, 20, .88); }
 .visor__caja { width: min(92vw, calc(82svh * 9 / 16)); }
-.visor video { display: block; width: 100%; aspect-ratio: 9 / 16; border-radius: 4px; background: #000; }
+.visor video, .visor iframe { display: block; width: 100%; aspect-ratio: 9 / 16; border: 0; border-radius: 4px; background: #000; }
+.visor video[hidden] { display: none; }
 .visor__pie { display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-top: 12px; color: var(--campo); }
 .visor__pie p { margin: 0; }
 .visor__tema { font-weight: 700; font-size: 13px; text-transform: uppercase; }
