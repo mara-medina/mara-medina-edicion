@@ -5,7 +5,7 @@ const PIEZAS = [
   { id: "aurea", tema: "Comercial de perfume", titulo: "AURÉA · Concepto publicitario", rol: "Narrativa visual · Color · Ritmo · Branding", dur: "0:28", audio: false },
   { id: "bienes-raices", tema: "Bienes raíces", titulo: "Recorrido de propiedad", rol: "Títulos animados · Subtítulos · Ritmo de recorrido", dur: "0:39", audio: true },
   { id: "podcast", tema: "Podcast", titulo: "Contenido informativo · Retención", rol: "Motion graphics · Subtítulos keyword · B-roll", dur: "0:31", audio: true },
-  // Publicado en YouTube: no hay archivo propio, se muestra su miniatura y se reproduce con el reproductor de YouTube
+  // Publicado en YouTube: la vista previa sale del archivo final; completo se ve con el reproductor de YouTube
   { id: "short-moneda", tema: "Short de YouTube", titulo: "¿Una moneda puede aprobar más cuentas de fondeo que tu estrategia?", rol: "José Rivas | Total Trader", dur: "Short", audio: true, youtube: "6-uEseZv1-c" },
 ];
 const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -19,11 +19,8 @@ function crearPieza(p, i) {
   b.setAttribute("aria-label", `Ver ${p.tema}: ${p.titulo}, ${p.dur}${p.audio ? "" : ", sin audio"}`);
   // El reel de la cabecera usa una versión ligera (se ve chico y sin sonido); el reproductor abre la de alta calidad
   const fuente = i === 0 ? `media/${p.id}-fondo.mp4` : `media/previa/${p.id}.mp4`;
-  const medio = p.youtube
-    ? `<img src="media/${p.id}.jpg" alt="" loading="lazy">`
-    : `<video src="${fuente}" poster="media/${p.id}.jpg" muted loop playsinline preload="${i === 0 ? "auto" : "metadata"}" ${quieto ? "" : "autoplay"}></video>`;
   b.innerHTML = `<span class="pieza__marco">
-      ${medio}
+      <video src="${fuente}" poster="media/${p.id}.jpg" muted loop playsinline preload="${i === 0 ? "auto" : "metadata"}" ${quieto ? "" : "autoplay"}></video>
       <span class="pieza__ver">${i === 0 ? "▶ Ver con sonido" : "▶ Ver completo"} · ${p.dur}${p.audio ? "" : " · sin audio"}</span>
     </span>
     <span class="pieza__tema">${p.tema}</span><span class="pieza__titulo">${p.titulo}</span><span class="pieza__rol">${p.rol}</span>`;

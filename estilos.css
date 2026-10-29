@@ -134,7 +134,7 @@ a { color: inherit; }
 
 /* Publicado en YouTube: el video largo (16:9); el Short va en el carrusel */
 .youtube { margin: 72px var(--g) 0; }
-.youtube__videos { max-width: 960px; }
+.youtube__videos { max-width: 960px; margin: 0 auto; }
 .youtube__video { margin: 0; }
 .youtube__marco { position: relative; overflow: hidden; border-radius: 4px; background: #000; }
 .youtube__video--largo .youtube__marco { aspect-ratio: 16 / 9; }
